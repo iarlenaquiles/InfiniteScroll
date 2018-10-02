@@ -1,5 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { Http, Response } from '@angular/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/map';
+import { NewsModel } from '../../models/news-model';
 
 /*
   Generated class for the NytApiProvider provider.
@@ -10,8 +14,27 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class NytApiProvider {
 
-  constructor(public http: HttpClient) {
+  private apiUrl = 'https://api.nytimes.com/svc/topstories/v2/home.json?api-key=44c89c2b1b494a16806d0561bc58cdd4';
+
+  constructor(public http: Http) {
     console.log('Hello NytApiProvider Provider');
+  }
+
+  getTopStories(page): Observable<NewsModel[]> {
+    return this.http.get(this.apiUrl)
+                    .map(this.extractData)
+                    .catch(this.handleError);
+  }
+
+  private extractData(res: Response) {
+    let body = res.json();
+    return body || { };
+  }
+
+  private handleError (error: Response | any) {
+    let errMsg = `${error.status} - ${error.statusText || ''}`;
+   console.error(errMsg);
+    return Observable.throw(errMsg);
   }
 
 }
